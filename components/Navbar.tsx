@@ -2,12 +2,20 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useClerk } from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
   const router = useRouter();
+  const { signOut } = useClerk();
 
   const handleLogoClick = () => {
     router.push("/");
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/signin");
   };
 
   return (
@@ -17,6 +25,7 @@ export default function Navbar() {
           FitTrack
         </div>
       </Link>
+      <Button onClick={handleSignOut}>Sign Out</Button>
     </header>
   );
 }
