@@ -6,7 +6,7 @@ export const workouts = pgTable("workouts", {
   sets: integer("sets").notNull(),
   reps: integer("reps").notNull(),
   weight: integer("weight").notNull(),
-  date: date("date").notNull(),
+  date: date("date", { mode: "date" }).notNull(),
 });
 
 export type Workout = typeof workouts.$inferSelect;

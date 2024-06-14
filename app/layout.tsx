@@ -21,7 +21,11 @@ export default function RootLayout({
       <html lang="en">
         <body className={inter.className}>
           <Navbar />
-          <main>{children}</main>
+          <main className="flex justify-center">
+            <div className="max-w-7xl w-full px-4 sm:px-6 lg:px-8 mt-8">
+              {children}
+            </div>
+          </main>
           {/* <footer className="bg-gray-100 text-gray-600 py-4 px-8 text-center">
             &copy; {new Date().getFullYear()} FitTrack. All rights reserved.
           </footer> */}
