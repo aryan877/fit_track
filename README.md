@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# FitTrack
+
+FitTrack is a web application that helps users track their fitness journey and visualize their progress. It provides a user-friendly interface for logging workouts, tracking nutrition intake, and seeing visual representations of their data.
+
+## Features
+
+- Log workouts with exercise details, sets, reps, and weights
+- Track daily nutrition intake and calories consumed
+- View progress through interactive charts and graphs
+- Secure user authentication and profile management
+- Responsive design for seamless usage across devices
+
+## Technologies Used
+
+- Frontend: React, Next.js, Tailwind CSS, Recharts
+- Backend: Next.js API routes, PostgreSQL, Drizzle ORM
+- Authentication: Clerk
+- Data Visualization: Recharts
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+   ```
+   git clone https://github.com/aryan877/fit_track.git
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install the dependencies:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+   ```
+   cd fit_track
+   npm install
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+3. Set up the database and environment variables:
 
-## Learn More
+   - Create a PostgreSQL database
+   - Create a `.env.local` file at the root level
+   - Set `POSTGRES_CONNECTION_STRING` env variable in `.env.local`
+   - Set the Clerk Auth env variables
 
-To learn more about Next.js, take a look at the following resources:
+4. Run the development server:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```
+   npm run dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+5. Open your browser and visit `http://localhost:3000` to access FitTrack.
