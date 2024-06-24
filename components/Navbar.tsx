@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
+import { LogOutIcon } from "lucide-react";
 
 export default function Navbar() {
   const router = useRouter();
@@ -19,13 +20,13 @@ export default function Navbar() {
   };
 
   return (
-    <header className="bg-primary text-white py-4 px-8 flex items-center justify-between">
+    <header className="py-4 px-8 flex items-center justify-between">
       <Link href="/" onClick={handleLogoClick}>
         <div className="text-2xl font-bold tracking-tight cursor-pointer">
           FitTrack
         </div>
       </Link>
-      <Button onClick={handleSignOut}>Sign Out</Button>
+      <LogOutIcon onClick={handleSignOut} className="cursor-pointer" />
     </header>
   );
 }

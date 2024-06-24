@@ -1,54 +1,87 @@
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, SaladIcon, BarChart2 } from "lucide-react";
-import dynamic from "next/dynamic";
+"use client";
 
+import React from "react";
+import { Activity, FileText, SaladIcon, Target } from "lucide-react";
 import Link from "next/link";
-const ProgressChartComponent = dynamic(
-  () => import("@/components/ProgressChart"),
+import { BentoGrid, BentoCard } from "@/components/magicui/bento-grid";
+import ProgressChart from "@/components/ProgressChart";
+
+const features = [
   {
-    ssr: false,
-  }
-);
+    Icon: Activity,
+    name: "Log Workout",
+    description: "Track your workouts",
+    href: "/log-workout",
+    cta: "Log Workout",
+    className: "col-span-1 sm:col-span-1",
+    background: (
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 opacity-40 rounded-lg flex items-center justify-center"></div>
+    ),
+  },
+  {
+    Icon: SaladIcon,
+    name: "Log Diet",
+    description: "Track your nutrition intake",
+    href: "/log-diet",
+    cta: "Log Diet",
+    className: "col-span-1 sm:col-span-1",
+    background: (
+      <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-teal-500 opacity-40 rounded-lg flex items-center justify-center"></div>
+    ),
+  },
+  {
+    Icon: Target,
+    name: "Set Goals",
+    description: "Set your daily calorie goals",
+    href: "/set-goals",
+    cta: "Set Goals",
+    className: "col-span-1 sm:col-span-1",
+    background: (
+      <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 to-orange-500 opacity-40 rounded-lg flex items-center justify-center"></div>
+    ),
+  },
+  {
+    Icon: FileText,
+    name: "Track Record",
+    description: "View your past track record",
+    href: "/track-record",
+    cta: "View Track Record",
+    className: "col-span-1 sm:col-span-1",
+    background: (
+      <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 opacity-40 rounded-lg flex items-center justify-center"></div>
+    ),
+  },
+];
 
 export default function Dashboard() {
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-4xl font-bold mb-8">Dashboard</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <Card className="bg-primary text-primary-foreground">
-          <Link href="/log-workout">
-            <CardHeader>
-              <CardTitle>Log Workout</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center">
-                <Activity className="h-6 w-6 mr-2" />
-                <span>Track your workouts</span>
-              </div>
-            </CardContent>
-          </Link>
-        </Card>
-        <Card className="bg-primary text-primary-foreground">
-          <Link href="/log-diet">
-            <CardHeader>
-              <CardTitle>Log Diet</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center">
-                <SaladIcon className="h-6 w-6 mr-2" />
-                <span>Track your nutrition intake</span>
-              </div>
-            </CardContent>
-          </Link>
-        </Card>
-      </div>
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-4 flex items-center">
-          <BarChart2 className="h-6 w-6 mr-2" />
-          <span>Progress Chart</span>
-        </h2>
-        <ProgressChartComponent />
+      <h1 className="text-4xl font-bold mb-8 text-center sm:text-left">
+        Dashboard
+      </h1>
+      <div className="flex flex-col gap-32">
+        <BentoGrid className="grid-cols-1 sm:grid-cols-2 gap-8">
+          {features.map((feature, idx) => (
+            <BentoCard
+              key={idx}
+              name={feature.name}
+              description={feature.description}
+              className={feature.className}
+              Icon={feature.Icon}
+              href={feature.href}
+              cta={feature.cta}
+              background={feature.background}
+            />
+          ))}
+        </BentoGrid>
+        {/* <div>
+          <h2 className="text-2xl font-bold mb-4 text-center sm:text-left">
+            Progress Chart
+          </h2>
+          <div className="w-full h-[300px] sm:h-[400px]">
+            <ProgressChart />
+          </div>
+        </div> */}
       </div>
     </div>
   );
