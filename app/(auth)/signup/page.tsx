@@ -107,7 +107,7 @@ export default function SignUpForm() {
 
   if (verifying) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-base-200">
+      <div className="flex justify-center items-center bg-base-200">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Verify Your Email</CardTitle>
@@ -137,7 +137,7 @@ export default function SignUpForm() {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-base-200">
+    <div className="flex justify-center items-center bg-base-200">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Join FitTrack</CardTitle>

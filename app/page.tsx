@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
+    <main className="flex flex-col items-center justify-center p-24">
       <div className="text-center">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
           Welcome to Gym Fitness Tracker and Progress Visualization

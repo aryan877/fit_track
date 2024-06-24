@@ -29,7 +29,7 @@ import { exerciseList } from "@/data/exerciseList";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Back from "@/components/Back";
 
-const WorkoutForm: React.FC = () => {
+const LogWorkout: React.FC = () => {
   const [exercises, setExercises] = useState<NewWorkout[]>([]);
   const [newExercise, setNewExercise] = useState<Partial<NewWorkout>>({
     exercise: "",
@@ -364,4 +364,4 @@ const WorkoutForm: React.FC = () => {
   );
 };
 
-export default WorkoutForm;
+export default LogWorkout;

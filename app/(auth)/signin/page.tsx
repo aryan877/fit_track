@@ -72,7 +72,7 @@ export default function LogInForm() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-base-200">
+    <div className="flex justify-center items-center bg-base-200">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Welcome Back to FitTrack</CardTitle>

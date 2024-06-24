@@ -30,7 +30,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import Back from "@/components/Back";
 
-const NutritionForm: React.FC = () => {
+const LogDiet: React.FC = () => {
   const [meals, setMeals] = useState<NewNutritionEntry[]>([]);
   const [newMeal, setNewMeal] = useState<Partial<NewNutritionEntry>>({
     mealName: "",
@@ -512,4 +512,4 @@ const MacroItem: React.FC<MacroItemProps> = ({
   </div>
 );
 
-export default NutritionForm;
+export default LogDiet;
