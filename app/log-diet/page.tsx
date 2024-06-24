@@ -4,16 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Plus,
-  Loader2,
-  Check,
-  ArrowLeft,
-  DumbbellIcon,
-  Coffee,
-  Sun,
-  Moon,
-} from "lucide-react";
+import { Plus, Loader2, Check, Coffee, Sun, Moon } from "lucide-react";
 import { NewNutritionEntry } from "@/lib/schema";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -132,8 +123,26 @@ const NutritionForm: React.FC = () => {
     }
   };
 
-  const removeMeal = (index: number) => {
-    setMeals((prevMeals) => prevMeals.filter((_, i) => i !== index));
+  const removeMeal = async (mealToRemove: NewNutritionEntry) => {
+    try {
+      if (mealToRemove.id) {
+        await axios.delete("/api/nutrition", { data: { id: mealToRemove.id } });
+      }
+      setMeals((prevMeals) =>
+        prevMeals.filter((meal) => meal !== mealToRemove)
+      );
+      toast({
+        title: "Success",
+        description: "Meal removed successfully",
+      });
+    } catch (error) {
+      console.error("Error removing meal:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove meal. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSubmit = async () => {
@@ -390,7 +399,7 @@ const NutritionForm: React.FC = () => {
                                 <MealItem
                                   key={index}
                                   meal={meal}
-                                  onRemove={() => removeMeal(index)}
+                                  onRemove={() => removeMeal(meal)}
                                 />
                               ))}
                           </div>

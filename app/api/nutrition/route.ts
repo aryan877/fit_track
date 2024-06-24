@@ -60,16 +60,16 @@ export async function POST(request: Request) {
   try {
     const { userId } = auth();
     if (!userId) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Unauthorized" }),
+      return Response.json(
+        { success: false, message: "Unauthorized" },
         { status: 401 }
       );
     }
 
     const { meals } = await request.json();
     if (!meals || !Array.isArray(meals)) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Invalid meals data" }),
+      return Response.json(
+        { success: false, message: "Invalid meals data" },
         { status: 400 }
       );
     }
@@ -136,16 +136,19 @@ export async function POST(request: Request) {
       results.push(...insertResult);
     }
 
-    return new Response(JSON.stringify({ success: true, data: results }), {
-      status: 201,
-    });
+    return Response.json(
+      { success: true, data: results },
+      {
+        status: 201,
+      }
+    );
   } catch (error) {
     console.error("Error saving nutrition entries:", error);
-    return new Response(
-      JSON.stringify({
+    return Response.json(
+      {
         success: false,
         message: "Error saving nutrition entries",
-      }),
+      },
       { status: 500 }
     );
   }
@@ -154,8 +157,8 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   const { userId } = auth();
   if (!userId) {
-    return new Response(
-      JSON.stringify({ success: false, message: "Unauthorized" }),
+    return Response.json(
+      { success: false, message: "Unauthorized" },
       { status: 401 }
     );
   }
@@ -168,20 +171,20 @@ export async function GET(request: Request) {
     // AI for fetching nutrition data
     try {
       const nutritionData = await fetchNutritionData(mealName, portion);
-      return new Response(
-        JSON.stringify({
+      return Response.json(
+        {
           success: true,
           data: [{ mealName, portion, ...nutritionData }],
-        }),
+        },
         { status: 200 }
       );
     } catch (error) {
       console.error("Error fetching nutrition data:", error);
-      return new Response(
-        JSON.stringify({
+      return Response.json(
+        {
           success: false,
           message: "Error fetching nutrition data",
-        }),
+        },
         { status: 500 }
       );
     }
@@ -204,19 +207,60 @@ export async function GET(request: Request) {
         )
         .orderBy(nutritionEntries.date);
 
-      return new Response(
-        JSON.stringify({ success: true, data: todaysMeals }),
+      return Response.json(
+        { success: true, data: todaysMeals },
         { status: 200 }
       );
     } catch (error) {
       console.error("Error fetching today's meals:", error);
-      return new Response(
-        JSON.stringify({
+      return Response.json(
+        {
           success: false,
           message: "Error fetching today's meals",
-        }),
+        },
         { status: 500 }
       );
     }
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { userId } = auth();
+    if (!userId) {
+      return Response.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const { id } = await request.json();
+
+    if (typeof id !== "number") {
+      return Response.json(
+        { success: false, message: "Invalid ID" },
+        { status: 400 }
+      );
+    }
+
+    const result = await db
+      .delete(nutritionEntries)
+      .where(eq(nutritionEntries.id, id))
+      .returning();
+
+    if (result.length === 0) {
+      return Response.json(
+        { success: false, message: "Meal not found" },
+        { status: 404 }
+      );
+    }
+
+    return Response.json({ success: true, data: result[0] }, { status: 200 });
+  } catch (error) {
+    console.error("Error deleting meal:", error);
+    return Response.json(
+      { success: false, message: "Error deleting meal" },
+      { status: 500 }
+    );
   }
 }

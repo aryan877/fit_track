@@ -77,10 +77,11 @@ const WorkoutForm: React.FC = () => {
       newExercise.reps &&
       newExercise.weight
     ) {
-      setExercises((prevExercises) => [
-        ...prevExercises,
-        newExercise as NewWorkout,
-      ]);
+      const exerciseWithDate = {
+        ...newExercise,
+        date: new Date(),
+      } as NewWorkout;
+      setExercises((prevExercises) => [...prevExercises, exerciseWithDate]);
       setNewExercise({
         exercise: "",
         sets: undefined,
@@ -91,10 +92,28 @@ const WorkoutForm: React.FC = () => {
     }
   };
 
-  const removeExercise = (index: number) => {
-    setExercises((prevExercises) =>
-      prevExercises.filter((_, i) => i !== index)
-    );
+  const removeExercise = async (exerciseToRemove: NewWorkout) => {
+    try {
+      if (exerciseToRemove.id) {
+        await axios.delete("/api/workout", {
+          data: { id: exerciseToRemove.id },
+        });
+      }
+      setExercises((prevExercises) =>
+        prevExercises.filter((exercise) => exercise !== exerciseToRemove)
+      );
+      toast({
+        title: "Success",
+        description: "Exercise removed successfully",
+      });
+    } catch (error) {
+      console.error("Error removing exercise:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove exercise. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSubmit = async () => {
@@ -109,7 +128,14 @@ const WorkoutForm: React.FC = () => {
 
     setIsSaving(true);
     try {
-      const response = await axios.post("/api/workout", { exercises });
+      const exercisesWithValidDates = exercises.map((exercise) => ({
+        ...exercise,
+        date: exercise.date instanceof Date ? exercise.date : new Date(),
+      }));
+
+      const response = await axios.post("/api/workout", {
+        exercises: exercisesWithValidDates,
+      });
 
       if (response.data.success) {
         toast({
@@ -135,7 +161,6 @@ const WorkoutForm: React.FC = () => {
       setIsSaving(false);
     }
   };
-
   return (
     <div className="bg-background text-foreground">
       <Back />
@@ -288,7 +313,7 @@ const WorkoutForm: React.FC = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeExercise(index)}
+                            onClick={() => removeExercise(exercise)}
                           >
                             Remove
                           </Button>
