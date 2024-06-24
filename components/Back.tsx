@@ -7,7 +7,7 @@ function Back() {
   const router = useRouter();
 
   return (
-    <header className="px-6 py-4">
+    <header className="py-4 mb-4">
       <nav className="flex items-center gap-4">
         <Button variant="ghost" onClick={() => router.back()}>
           <ArrowLeft className="w-4 h-4 mr-2" />

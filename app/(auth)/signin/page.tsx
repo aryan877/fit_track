@@ -8,7 +8,6 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff } from "lucide-react";
 
 const signInSchema = z.object({
@@ -73,64 +72,60 @@ export default function LogInForm() {
 
   return (
     <div className="flex justify-center items-center bg-base-200">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Welcome Back to FitTrack</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Sign in to access and manage your fitness data
-          </p>
-          <form onSubmit={onSubmit} className="space-y-4 py-4">
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="identifier">Email/Username</Label>
-              <Input
-                id="identifier"
-                type="text"
-                name="identifier"
-                value={formData.identifier}
-                onChange={handleChange}
-                className={errors.identifier ? "input-error" : ""}
-              />
-              {errors.identifier && (
-                <p className="text-sm text-red-500">{errors.identifier}</p>
-              )}
-            </div>
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={errors.password ? "input-error pr-10" : "pr-10"}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-primary"
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="text-sm text-red-500">{errors.password}</p>
-              )}
-            </div>
-            <Button type="submit">Sign In</Button>
-          </form>
-          <div className="text-center">
-            <p className="text-sm">
-              Not a member yet?{" "}
-              <Link href="/signup" className="underline">
-                Sign up
-              </Link>
-            </p>
+      <div className="w-full max-w-lg p-8 bg-white">
+        <h2 className="text-2xl font-bold mb-4">Welcome Back to FitTrack</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Sign in to access and manage your fitness data
+        </p>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div className="grid w-full items-center gap-1.5">
+            <Label htmlFor="identifier">Email/Username</Label>
+            <Input
+              id="identifier"
+              type="text"
+              name="identifier"
+              value={formData.identifier}
+              onChange={handleChange}
+              className={errors.identifier ? "input-error" : ""}
+            />
+            {errors.identifier && (
+              <p className="text-sm text-red-500">{errors.identifier}</p>
+            )}
           </div>
-        </CardContent>
-      </Card>
+          <div className="grid w-full items-center gap-1.5">
+            <Label htmlFor="password">Password</Label>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className={errors.password ? "input-error pr-10" : "pr-10"}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-primary"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-sm text-red-500">{errors.password}</p>
+            )}
+          </div>
+          <Button type="submit">Sign In</Button>
+        </form>
+        <div className="text-center mt-4">
+          <p className="text-sm">
+            Not a member yet?{" "}
+            <Link href="/signup" className="underline">
+              Sign up
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

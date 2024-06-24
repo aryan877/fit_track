@@ -2,9 +2,7 @@
 
 import React from "react";
 import { Activity, FileText, SaladIcon, Target } from "lucide-react";
-import Link from "next/link";
 import { BentoGrid, BentoCard } from "@/components/magicui/bento-grid";
-import ProgressChart from "@/components/ProgressChart";
 
 const features = [
   {
@@ -74,14 +72,6 @@ export default function Dashboard() {
             />
           ))}
         </BentoGrid>
-        {/* <div>
-          <h2 className="text-2xl font-bold mb-4 text-center sm:text-left">
-            Progress Chart
-          </h2>
-          <div className="w-full h-[300px] sm:h-[400px]">
-            <ProgressChart />
-          </div>
-        </div> */}
       </div>
     </div>
   );

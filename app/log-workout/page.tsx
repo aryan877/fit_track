@@ -40,6 +40,7 @@ const LogWorkout: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const [selectedBodyPart, setSelectedBodyPart] = useState<string>("");
 
   const { toast } = useToast();
@@ -56,6 +57,8 @@ const LogWorkout: React.FC = () => {
         description: "Failed to fetch today's workouts. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsPageLoading(false);
     }
   }, [toast]);
 
@@ -93,6 +96,7 @@ const LogWorkout: React.FC = () => {
   };
 
   const removeExercise = async (exerciseToRemove: NewWorkout) => {
+    setIsLoading(true);
     try {
       if (exerciseToRemove.id) {
         await axios.delete("/api/workout", {
@@ -113,6 +117,8 @@ const LogWorkout: React.FC = () => {
         description: "Failed to remove exercise. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -161,10 +167,19 @@ const LogWorkout: React.FC = () => {
       setIsSaving(false);
     }
   };
+
+  if (isPageLoading) {
+    return (
+      <div className="flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="bg-background text-foreground">
-      <Back />
       <main className="container mx-auto py-8 px-6">
+        <Back />
         <h2 className="text-3xl font-bold mb-6">{`Log Today's Workout`}</h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
@@ -314,8 +329,13 @@ const LogWorkout: React.FC = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeExercise(exercise)}
+                            disabled={isLoading}
                           >
-                            Remove
+                            {isLoading ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              "Remove"
+                            )}
                           </Button>
                         </CardContent>
                       </Card>

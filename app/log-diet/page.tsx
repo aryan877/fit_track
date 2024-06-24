@@ -40,6 +40,7 @@ const LogDiet: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const [nutritionData, setNutritionData] = useState<NewNutritionEntry | null>(
     null
   );
@@ -62,7 +63,12 @@ const LogDiet: React.FC = () => {
   }, [toast]);
 
   useEffect(() => {
-    fetchTodaysMeals();
+    const loadData = async () => {
+      setIsPageLoading(true);
+      await fetchTodaysMeals();
+      setIsPageLoading(false);
+    };
+    loadData();
   }, [fetchTodaysMeals]);
 
   const handleMealChange = (
@@ -208,10 +214,18 @@ const LogDiet: React.FC = () => {
     fat: ((totalNutrition.fat * 9) / totalNutrition.calories) * 100 || 0,
   };
 
+  if (isPageLoading) {
+    return (
+      <div className="flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="bg-background text-foreground">
-      <Back />
       <main className="container mx-auto py-8 px-6">
+        <Back />
         <h2 className="text-3xl font-bold mb-6">{`Log Today's Nutrition`}</h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
