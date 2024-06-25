@@ -4,16 +4,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import dayjs from "dayjs";
 import axios from "axios";
 import { Line, Bar } from "react-chartjs-2";
-import { Loader2, Calendar } from "lucide-react";
+import { Loader2, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { NutritionEntry, Workout } from "@/lib/schema";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
 import Back from "@/components/Back";
 import {
   Chart as ChartJS,
@@ -49,10 +42,7 @@ const colorMap: Record<string, string> = {
 };
 
 const TrackRecord: React.FC = () => {
-  const [selectedMonth, setSelectedMonth] = useState(dayjs().format("MMMM"));
-  const [selectedYear, setSelectedYear] = useState(dayjs().format("YYYY"));
-  const [startDate, setStartDate] = useState(dayjs().startOf("month").toDate());
-  const [endDate, setEndDate] = useState(dayjs().endOf("month").toDate());
+  const [currentDate, setCurrentDate] = useState(dayjs());
   const [nutritionEntries, setNutritionEntries] = useState<NutritionEntry[]>(
     []
   );
@@ -64,8 +54,8 @@ const TrackRecord: React.FC = () => {
     try {
       const response = await axios.get("/api/fitness", {
         params: {
-          startDate: dayjs(startDate).format("YYYY-MM-DD"),
-          endDate: dayjs(endDate).format("YYYY-MM-DD"),
+          startDate: currentDate.startOf("month").format("YYYY-MM-DD"),
+          endDate: currentDate.endOf("month").format("YYYY-MM-DD"),
         },
       });
       setNutritionEntries(response.data.nutrition);
@@ -75,24 +65,18 @@ const TrackRecord: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [startDate, endDate]);
+  }, [currentDate]);
 
   useEffect(() => {
     fetchData();
-  }, [startDate, endDate, fetchData]);
+  }, [currentDate, fetchData]);
 
-  const handleMonthChange = (month: string) => {
-    const newDate = dayjs(`${selectedYear}-${month}-01`);
-    setSelectedMonth(month);
-    setStartDate(newDate.startOf("month").toDate());
-    setEndDate(newDate.endOf("month").toDate());
+  const handlePreviousMonth = () => {
+    setCurrentDate(currentDate.subtract(1, "month"));
   };
 
-  const handleYearChange = (year: string) => {
-    const newDate = dayjs(`${year}-${selectedMonth}-01`);
-    setSelectedYear(year);
-    setStartDate(newDate.startOf("month").toDate());
-    setEndDate(newDate.endOf("month").toDate());
+  const handleNextMonth = () => {
+    setCurrentDate(currentDate.add(1, "month"));
   };
 
   const processNutritionData = (entries: NutritionEntry[]) => {
@@ -180,28 +164,37 @@ const TrackRecord: React.FC = () => {
     ],
   };
 
-  const workoutOptions = {
+  const baseChartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "top" as const,
+        labels: {
+          font: {
+            size: 14,
+            weight: "bold" as const,
+          },
+        },
       },
       title: {
         display: true,
-        text: `Workout Volume by Body Part - ${dayjs(startDate).format(
-          "MMMM YYYY"
-        )}`,
+        text: `${currentDate.format("MMMM YYYY")}`,
+        font: {
+          size: 20,
+          weight: "bold" as const,
+        },
+        padding: {
+          top: 10,
+          bottom: 30,
+        },
       },
       tooltip: {
-        callbacks: {
-          label: (context: any) => {
-            const bodyPart = context.label;
-            const data = processedWorkoutData[bodyPart];
-            return [
-              `Total Sets: ${data.totalSets}`,
-              `Exercises: ${Array.from(data.exercises).join(", ")}`,
-            ];
-          },
+        titleFont: {
+          size: 16,
+        },
+        bodyFont: {
+          size: 14,
         },
       },
     },
@@ -209,32 +202,43 @@ const TrackRecord: React.FC = () => {
       x: {
         title: {
           display: true,
-          text: "Body Part",
+          text: "Date",
+          font: {
+            size: 16,
+            weight: "bold" as const,
+          },
+        },
+        ticks: {
+          font: {
+            size: 12,
+          },
         },
       },
       y: {
         title: {
           display: true,
-          text: "Sets",
+          text: "Calories",
+          font: {
+            size: 16,
+            weight: "bold" as const,
+          },
+        },
+        ticks: {
+          font: {
+            size: 12,
+          },
         },
         beginAtZero: true,
       },
     },
   };
 
-  const options = {
-    responsive: true,
+  const calorieChartOptions = {
+    ...baseChartOptions,
     plugins: {
-      legend: {
-        position: "top" as const,
-      },
-      title: {
-        display: true,
-        text: `Calories and Macronutrients Over Time - ${dayjs(
-          startDate
-        ).format("MMMM YYYY")}`,
-      },
+      ...baseChartOptions.plugins,
       tooltip: {
+        ...baseChartOptions.plugins.tooltip,
         callbacks: {
           title: (context: any) =>
             dayjs(context[0].label).format("dddd, MMMM D"),
@@ -251,43 +255,37 @@ const TrackRecord: React.FC = () => {
         },
       },
     },
-    scales: {
-      x: {
-        title: {
-          display: true,
-          text: "Date",
+  };
+
+  const workoutChartOptions = {
+    ...baseChartOptions,
+    plugins: {
+      ...baseChartOptions.plugins,
+      tooltip: {
+        ...baseChartOptions.plugins.tooltip,
+        callbacks: {
+          label: (context: any) => {
+            const bodyPart = context.label;
+            const data = processedWorkoutData[bodyPart];
+            return [
+              `Total Sets: ${data.totalSets}`,
+              `Exercises: ${Array.from(data.exercises).join(", ")}`,
+            ];
+          },
         },
       },
+    },
+    scales: {
+      ...baseChartOptions.scales,
       y: {
+        ...baseChartOptions.scales.y,
         title: {
-          display: true,
-          text: "Calories",
+          ...baseChartOptions.scales.y.title,
+          text: "Sets",
         },
-        beginAtZero: true,
       },
     },
   };
-
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-
-  const years = Array.from(
-    { length: 10 },
-    (_, i) => dayjs().year() - 5 + i
-  ).map(String);
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center">
@@ -304,51 +302,50 @@ const TrackRecord: React.FC = () => {
       </h1>
 
       <div className="flex justify-center items-center mb-10 space-x-4">
-        <Select onValueChange={handleMonthChange} value={selectedMonth}>
-          <SelectTrigger className="w-32">
-            <SelectValue placeholder="Select month" />
-          </SelectTrigger>
-          <SelectContent>
-            {months.map((month) => (
-              <SelectItem key={month} value={month}>
-                {month}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select onValueChange={handleYearChange} value={selectedYear}>
-          <SelectTrigger className="w-20">
-            <SelectValue placeholder="Select year" />
-          </SelectTrigger>
-          <SelectContent>
-            {years.map((year) => (
-              <SelectItem key={year} value={year}>
-                {year}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handlePreviousMonth}
+          className="text-gray-600 hover:text-gray-800"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <div className="text-2xl font-semibold text-gray-800 flex items-center">
+          <Calendar className="w-6 h-6 mr-2" />
+          {currentDate.format("MMMM YYYY")}
+        </div>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handleNextMonth}
+          className="text-gray-600 hover:text-gray-800"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
 
       {labels.length > 0 ? (
         <>
-          <div className="h-[500px] mb-20">
-            <h2 className="text-2xl font-bold mb-6 text-center">
-              {dayjs(startDate).format("MMMM YYYY")} Calories and Macronutrients
-              Over Time
+          <div className="bg-white rounded-lg p-6 mb-10">
+            <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+              Calories and Macronutrients Over Time
             </h2>
-            <Line data={calorieData} options={options} />
+            <div className="h-[500px]">
+              <Line data={calorieData} options={calorieChartOptions} />
+            </div>
           </div>
-          <div className="h-[500px] mb-20">
-            <h2 className="text-2xl font-bold mb-6 text-center">
-              {dayjs(startDate).format("MMMM YYYY")} Workout Volume by Body Part
+          <div className="bg-white rounded-lg p-6 mb-10">
+            <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+              Workout Volume by Body Part
             </h2>
-            <Bar data={workoutData} options={workoutOptions} />
+            <div className="h-[500px]">
+              <Bar data={workoutData} options={workoutChartOptions} />
+            </div>
           </div>
         </>
       ) : (
-        <div className="h-[500px] mb-10">
-          <p className="text-center text-gray-500">
+        <div className="h-[500px] flex items-center justify-center">
+          <p className="text-center text-gray-500 text-xl">
             No data available for the selected period.
           </p>
         </div>

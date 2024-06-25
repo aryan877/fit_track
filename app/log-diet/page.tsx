@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2, Check, Coffee, Sun, Moon } from "lucide-react";
-import { NewNutritionEntry } from "@/lib/schema";
+import { NewNutritionEntry, Goal } from "@/lib/schema";
 import { useToast } from "@/components/ui/use-toast";
 import {
   Dialog,
@@ -44,6 +44,7 @@ const LogDiet: React.FC = () => {
   const [nutritionData, setNutritionData] = useState<NewNutritionEntry | null>(
     null
   );
+  const [goal, setGoal] = useState<Goal | null>(null);
 
   const { toast } = useToast();
   const router = useRouter();
@@ -51,12 +52,14 @@ const LogDiet: React.FC = () => {
   const fetchTodaysMeals = useCallback(async () => {
     try {
       const response = await axios.get("/api/nutrition");
-      setMeals(response.data.data);
+      setMeals(response.data.data.meals);
+      setGoal(response.data.data.goal);
     } catch (error) {
-      console.error("Error fetching today's meals:", error);
+      console.error("Error fetching today's meals and goal:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch today's meals. Please try again.",
+        description:
+          "Failed to fetch today's meals and goal. Please try again.",
         variant: "destructive",
       });
     }
@@ -449,11 +452,19 @@ const LogDiet: React.FC = () => {
                 <CardTitle>Daily Summary</CardTitle>
               </CardHeader>
               <CardContent>
-                {meals.length > 0 ? (
+                {meals.length > 0 && goal ? (
                   <div className="space-y-4">
                     <div className="text-2xl font-bold text-center">
-                      {totalNutrition.calories.toFixed(0)} kcal
+                      {totalNutrition.calories.toFixed(0)} /{" "}
+                      {goal.dailyCalories} kcal
                     </div>
+                    <Progress
+                      value={
+                        (totalNutrition.calories / Number(goal.dailyCalories)) *
+                        100
+                      }
+                      className="h-2 bg-blue-100"
+                    />
                     <div className="space-y-2">
                       <MacroItem
                         label="Protein"
@@ -491,7 +502,9 @@ const LogDiet: React.FC = () => {
                   </div>
                 ) : (
                   <p className="text-center text-gray-500 py-4">
-                    No meals logged yet. Add meals to see your daily summary.
+                    {goal
+                      ? "No meals logged yet. Add meals to see your daily summary."
+                      : "No goal set. Please set a goal in the Goals section."}
                   </p>
                 )}
               </CardContent>

@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import { nutritionEntries, NewNutritionEntry } from "@/lib/schema";
+import { goals, nutritionEntries } from "@/lib/schema";
 import axios from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -189,7 +189,7 @@ export async function GET(request: Request) {
       );
     }
   } else {
-    // fetching today's meals
+    // fetching today's meals and user's goal
     try {
       const now = dayjs().tz(dayjs.tz.guess());
       const startOfDay = now.startOf("day").toDate();
@@ -207,16 +207,28 @@ export async function GET(request: Request) {
         )
         .orderBy(nutritionEntries.date);
 
+      const userGoal = await db
+        .select()
+        .from(goals)
+        .where(eq(goals.userId, userId))
+        .limit(1);
+
       return Response.json(
-        { success: true, data: todaysMeals },
+        {
+          success: true,
+          data: {
+            meals: todaysMeals,
+            goal: userGoal[0] || null,
+          },
+        },
         { status: 200 }
       );
     } catch (error) {
-      console.error("Error fetching today's meals:", error);
+      console.error("Error fetching today's meals and goal:", error);
       return Response.json(
         {
           success: false,
-          message: "Error fetching today's meals",
+          message: "Error fetching today's meals and goal",
         },
         { status: 500 }
       );
