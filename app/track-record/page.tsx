@@ -172,8 +172,8 @@ const TrackRecord: React.FC = () => {
         position: "top" as const,
         labels: {
           font: {
-            size: 14,
-            weight: "bold" as const,
+            size: 12,
+            weight: "normal" as const,
           },
         },
       },
@@ -181,20 +181,20 @@ const TrackRecord: React.FC = () => {
         display: true,
         text: `${currentDate.format("MMMM YYYY")}`,
         font: {
-          size: 20,
+          size: 16,
           weight: "bold" as const,
         },
         padding: {
           top: 10,
-          bottom: 30,
+          bottom: 20,
         },
       },
       tooltip: {
         titleFont: {
-          size: 16,
+          size: 14,
         },
         bodyFont: {
-          size: 14,
+          size: 12,
         },
       },
     },
@@ -204,13 +204,13 @@ const TrackRecord: React.FC = () => {
           display: true,
           text: "Date",
           font: {
-            size: 16,
-            weight: "bold" as const,
+            size: 14,
+            weight: "normal" as const,
           },
         },
         ticks: {
           font: {
-            size: 12,
+            size: 10,
           },
         },
       },
@@ -219,13 +219,13 @@ const TrackRecord: React.FC = () => {
           display: true,
           text: "Calories",
           font: {
-            size: 16,
-            weight: "bold" as const,
+            size: 14,
+            weight: "normal" as const,
           },
         },
         ticks: {
           font: {
-            size: 12,
+            size: 10,
           },
         },
         beginAtZero: true,
@@ -295,30 +295,30 @@ const TrackRecord: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 bg-white">
+    <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 bg-background">
       <Back />
-      <h1 className="text-4xl font-bold mb-10 text-center text-gray-800">
+      <h1 className="text-3xl font-bold mb-6 text-center">
         Nutrition & Workout Track Record
       </h1>
 
-      <div className="flex justify-center items-center mb-10 space-x-4">
+      <div className="flex justify-center items-center mb-8 space-x-4">
         <Button
           variant="outline"
           size="icon"
           onClick={handlePreviousMonth}
-          className="text-gray-600 hover:text-gray-800"
+          className="text-foreground hover:text-foreground/80"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <div className="text-2xl font-semibold text-gray-800 flex items-center">
-          <Calendar className="w-6 h-6 mr-2" />
+        <div className="text-lg font-semibold text-foreground flex items-center">
+          <Calendar className="w-5 h-5 mr-2" />
           {currentDate.format("MMMM YYYY")}
         </div>
         <Button
           variant="outline"
           size="icon"
           onClick={handleNextMonth}
-          className="text-gray-600 hover:text-gray-800"
+          className="text-foreground hover:text-foreground/80"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -326,26 +326,26 @@ const TrackRecord: React.FC = () => {
 
       {labels.length > 0 ? (
         <>
-          <div className="bg-white rounded-lg p-6 mb-10">
-            <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+          <div className="bg-card rounded-lg shadow-sm p-4 mb-8">
+            <h2 className="text-xl font-semibold mb-4 text-center">
               Calories and Macronutrients Over Time
             </h2>
-            <div className="h-[500px]">
+            <div className="h-[400px]">
               <Line data={calorieData} options={calorieChartOptions} />
             </div>
           </div>
-          <div className="bg-white rounded-lg p-6 mb-10">
-            <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+          <div className="bg-card rounded-lg shadow-sm p-4 mb-8">
+            <h2 className="text-xl font-semibold mb-4 text-center">
               Workout Volume by Body Part
             </h2>
-            <div className="h-[500px]">
+            <div className="h-[400px]">
               <Bar data={workoutData} options={workoutChartOptions} />
             </div>
           </div>
         </>
       ) : (
-        <div className="h-[500px] flex items-center justify-center">
-          <p className="text-center text-gray-500 text-xl">
+        <div className="h-[400px] flex items-center justify-center">
+          <p className="text-center text-muted-foreground text-lg">
             No data available for the selected period.
           </p>
         </div>

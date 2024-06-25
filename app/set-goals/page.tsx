@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2, Check } from "lucide-react";
+import { Plus, Loader2, Check, CalendarIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import {
   Dialog,
@@ -15,6 +15,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import axios from "axios";
 import Back from "@/components/Back";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -172,239 +178,275 @@ const SetGoals: React.FC = () => {
 
   return (
     <div className="bg-background text-foreground">
-      <main className="container mx-auto py-8 px-6">
+      <main className="container mx-auto max-w-4xl py-12 px-4 sm:px-6 lg:px-8">
         <Back />
-        <h2 className="text-3xl font-bold mb-6">Set Your Goal</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Goal</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {goal ? (
-                  <Card className="bg-gray-50">
-                    <CardHeader>
-                      <CardTitle className="text-xl font-semibold">
-                        Current Goal
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p>Current Weight: {goal.currentWeight} kg</p>
-                      <p>Desired Weight: {goal.desiredWeight} kg</p>
-                      <p>Daily Calories: {goal.dailyCalories} kcal</p>
-                      <p>Daily Exercise: {goal.dailyExerciseMinutes} minutes</p>
-                      <p>
-                        Start Date:{" "}
-                        {dayjs(goal.startDate).format("MMMM D, YYYY")}
-                      </p>
-                      <p>
-                        End Date: {dayjs(goal.endDate).format("MMMM D, YYYY")}
-                      </p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={removeGoal}
-                        className="mt-4"
-                      >
-                        Remove Goal
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="w-full mb-6">
-                        <Plus className="w-5 h-5 mr-2" />
-                        Set Goal
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>Set Goal</DialogTitle>
-                        <DialogDescription>
-                          Enter your current weight, desired weight, and the
-                          timeframe for achieving your goal.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="currentWeight" className="text-right">
-                            Current Weight (kg)
-                          </Label>
-                          <Input
-                            id="currentWeight"
-                            type="number"
-                            value={newGoal.currentWeight || ""}
-                            onChange={(e) =>
-                              handleGoalChange(
-                                "currentWeight",
-                                Number(e.target.value)
-                              )
-                            }
-                            className="col-span-3"
-                          />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="desiredWeight" className="text-right">
-                            Desired Weight (kg)
-                          </Label>
-                          <Input
-                            id="desiredWeight"
-                            type="number"
-                            value={newGoal.desiredWeight || ""}
-                            onChange={(e) =>
-                              handleGoalChange(
-                                "desiredWeight",
-                                Number(e.target.value)
-                              )
-                            }
-                            className="col-span-3"
-                          />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="startDate" className="text-right">
-                            Start Date
-                          </Label>
-                          <Input
-                            id="startDate"
-                            type="date"
-                            value={dayjs(newGoal.startDate).format(
-                              "YYYY-MM-DD"
-                            )}
-                            onChange={(e) =>
-                              handleGoalChange(
-                                "startDate",
-                                new Date(e.target.value)
-                              )
-                            }
-                            className="col-span-3"
-                          />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="endDate" className="text-right">
-                            End Date
-                          </Label>
-                          <Input
-                            id="endDate"
-                            type="date"
-                            value={dayjs(newGoal.endDate).format("YYYY-MM-DD")}
-                            onChange={(e) =>
-                              handleGoalChange(
-                                "endDate",
-                                new Date(e.target.value)
-                              )
-                            }
-                            className="col-span-3"
-                          />
-                        </div>
-                      </div>
-                      <div className="py-4">
-                        <Button
-                          onClick={calculateGoals}
-                          disabled={isLoading}
-                          className="w-full"
-                        >
-                          {isLoading ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Calculating...
-                            </>
-                          ) : (
-                            "Calculate Goals"
-                          )}
-                        </Button>
-                      </div>
-                      {newGoal.dailyCalories &&
-                        newGoal.dailyExerciseMinutes && (
-                          <div className="py-4">
-                            <h3 className="text-lg font-bold mb-2">
-                              Calculated Goals
-                            </h3>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="calculatedCalories">
-                                  Daily Calories (kcal)
-                                </Label>
-                                <Input
-                                  id="calculatedCalories"
-                                  type="number"
-                                  value={newGoal.dailyCalories || ""}
-                                  onChange={(e) =>
-                                    handleGoalChange(
-                                      "dailyCalories",
-                                      Number(e.target.value)
-                                    )
-                                  }
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="calculatedExercise">
-                                  Daily Exercise (minutes)
-                                </Label>
-                                <Input
-                                  id="calculatedExercise"
-                                  type="number"
-                                  value={newGoal.dailyExerciseMinutes || ""}
-                                  onChange={(e) =>
-                                    handleGoalChange(
-                                      "dailyExerciseMinutes",
-                                      Number(e.target.value)
-                                    )
-                                  }
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      <DialogFooter>
-                        <Button
-                          onClick={saveGoal}
-                          disabled={
-                            !newGoal.dailyCalories ||
-                            !newGoal.dailyExerciseMinutes ||
-                            isSaving
-                          }
-                          className="bg-green-500 text-white hover:bg-green-600"
-                        >
-                          {isSaving ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Saving...
-                            </>
-                          ) : (
-                            <>
-                              <Check className="mr-2 h-4 w-4" />
-                              Save Goal
-                            </>
-                          )}
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                )}
-              </CardContent>
-            </Card>
+        <div className="space-y-8">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold tracking-tight">
+              Calorie Goal Tracker
+            </h1>
+            <p className="mt-2 text-lg text-muted-foreground">
+              Set your weight loss goals and track your progress.
+            </p>
           </div>
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Daily Summary</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {goal ? (
-                  <div className="space-y-4">
-                    <p>Daily Calories: {goal.dailyCalories} kcal</p>
-                    <p>Daily Exercise: {goal.dailyExerciseMinutes} minutes</p>
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Goal</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {goal ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Current Weight
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {goal.currentWeight} kg
+                    </p>
                   </div>
-                ) : (
-                  <p className="text-center text-gray-500 py-4">
-                    No goal set yet. Set a goal to see your daily summary.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Target Weight
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {goal.desiredWeight} kg
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Daily Calories
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {goal.dailyCalories} kcal
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Daily Exercise
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {goal.dailyExerciseMinutes} minutes
+                    </p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Goal Period
+                    </p>
+                    <p className="text-lg font-semibold">
+                      {dayjs(goal.startDate).format("MMMM D, YYYY")} -{" "}
+                      {dayjs(goal.endDate).format("MMMM D, YYYY")}
+                    </p>
+                  </div>
+
+                  <div className="col-span-2">
+                    <Button
+                      variant="outline"
+                      onClick={removeGoal}
+                      className="w-full"
+                    >
+                      Remove Goal
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Set New Goal
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Set Your Goal</DialogTitle>
+                      <DialogDescription>
+                        Enter your current weight, desired weight, and the
+                        timeframe for achieving your goal.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="currentWeight" className="text-right">
+                          Current Weight (kg)
+                        </Label>
+                        <Input
+                          id="currentWeight"
+                          type="number"
+                          value={newGoal.currentWeight || ""}
+                          onChange={(e) =>
+                            handleGoalChange(
+                              "currentWeight",
+                              Number(e.target.value)
+                            )
+                          }
+                          className="col-span-3"
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="desiredWeight" className="text-right">
+                          Target Weight (kg)
+                        </Label>
+                        <Input
+                          id="desiredWeight"
+                          type="number"
+                          value={newGoal.desiredWeight || ""}
+                          onChange={(e) =>
+                            handleGoalChange(
+                              "desiredWeight",
+                              Number(e.target.value)
+                            )
+                          }
+                          className="col-span-3"
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="startDate" className="text-right">
+                          Start Date
+                        </Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={`col-span-3 justify-start text-left font-normal ${
+                                !newGoal.startDate && "text-muted-foreground"
+                              }`}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {newGoal.startDate
+                                ? dayjs(newGoal.startDate).format(
+                                    "MMMM D, YYYY"
+                                  )
+                                : "Select date"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={newGoal.startDate}
+                              onSelect={(date) =>
+                                handleGoalChange("startDate", date as Date)
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="endDate" className="text-right">
+                          End Date
+                        </Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={`col-span-3 justify-start text-left font-normal ${
+                                !newGoal.endDate && "text-muted-foreground"
+                              }`}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {newGoal.endDate
+                                ? dayjs(newGoal.endDate).format("MMMM D, YYYY")
+                                : "Select date"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={newGoal.endDate}
+                              onSelect={(date) =>
+                                handleGoalChange("endDate", date as Date)
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </div>
+                    <div className="py-4">
+                      <Button
+                        onClick={calculateGoals}
+                        disabled={isLoading}
+                        className="w-full"
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Calculating...
+                          </>
+                        ) : (
+                          "Calculate Goals"
+                        )}
+                      </Button>
+                    </div>
+                    {newGoal.dailyCalories && newGoal.dailyExerciseMinutes && (
+                      <div className="py-4 space-y-4">
+                        <h3 className="text-lg font-bold">Calculated Goals</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="calculatedCalories">
+                              Daily Calories (kcal)
+                            </Label>
+                            <Input
+                              id="calculatedCalories"
+                              type="number"
+                              value={newGoal.dailyCalories || ""}
+                              onChange={(e) =>
+                                handleGoalChange(
+                                  "dailyCalories",
+                                  Number(e.target.value)
+                                )
+                              }
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="calculatedExercise">
+                              Daily Exercise (minutes)
+                            </Label>
+                            <Input
+                              id="calculatedExercise"
+                              type="number"
+                              value={newGoal.dailyExerciseMinutes || ""}
+                              onChange={(e) =>
+                                handleGoalChange(
+                                  "dailyExerciseMinutes",
+                                  Number(e.target.value)
+                                )
+                              }
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    <DialogFooter>
+                      <Button
+                        onClick={saveGoal}
+                        disabled={
+                          !newGoal.dailyCalories ||
+                          !newGoal.dailyExerciseMinutes ||
+                          isSaving
+                        }
+                        className="w-full"
+                      >
+                        {isSaving ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Check className="mr-2 h-4 w-4" />
+                            Save Goal
+                          </>
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>
