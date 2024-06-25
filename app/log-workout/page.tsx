@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2, Check, ArrowLeft, Dumbbell } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { NewWorkout } from "@/lib/schema";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -26,6 +26,7 @@ import {
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { exerciseList } from "@/data/exerciseList";
+import ExerciseCard from "@/components/ExerciseCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Back from "@/components/Back";
 
@@ -314,31 +315,12 @@ const LogWorkout: React.FC = () => {
                 ) : (
                   <div className="space-y-4">
                     {exercises.map((exercise, index) => (
-                      <Card key={index} className="bg-gray-50">
-                        <CardContent className="p-4 flex justify-between items-center">
-                          <div>
-                            <h3 className="text-lg font-semibold">
-                              {exercise.exercise}
-                            </h3>
-                            <p className="text-sm text-gray-500">
-                              {exercise.sets} sets x {exercise.reps} reps @{" "}
-                              {exercise.weight} kg
-                            </p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeExercise(exercise)}
-                            disabled={isLoading}
-                          >
-                            {isLoading ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              "Remove"
-                            )}
-                          </Button>
-                        </CardContent>
-                      </Card>
+                      <ExerciseCard
+                        key={index}
+                        exercise={exercise}
+                        onRemove={() => removeExercise(exercise)}
+                        isLoading={isLoading}
+                      />
                     ))}
                   </div>
                 )}

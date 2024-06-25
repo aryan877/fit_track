@@ -32,7 +32,20 @@ export const nutritionEntries = pgTable("nutrition_entries", {
   fat: numeric("fat"),
 });
 
+export const goals = pgTable("goals", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 256 }).notNull(),
+  currentWeight: numeric("current_weight").notNull(),
+  desiredWeight: numeric("desired_weight").notNull(),
+  dailyCalories: numeric("daily_calories").notNull(),
+  dailyExerciseMinutes: integer("daily_exercise_minutes").notNull(),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
+});
+
 export type Workout = typeof workouts.$inferSelect;
 export type NewWorkout = typeof workouts.$inferInsert;
 export type NutritionEntry = typeof nutritionEntries.$inferSelect;
 export type NewNutritionEntry = typeof nutritionEntries.$inferInsert;
+export type Goal = typeof goals.$inferSelect;
+export type NewGoal = typeof goals.$inferInsert;

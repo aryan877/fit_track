@@ -13,8 +13,8 @@ export async function POST(request: Request) {
   try {
     const { userId } = auth();
     if (!userId) {
-      return Response.json(
-        { success: false, message: "Unauthorized" },
+      return new Response(
+        JSON.stringify({ success: false, message: "Unauthorized" }),
         { status: 401 }
       );
     }
@@ -22,37 +22,62 @@ export async function POST(request: Request) {
     const { exercises } = await request.json();
 
     if (!exercises || !Array.isArray(exercises)) {
-      return Response.json(
-        { success: false, message: "Invalid exercises data" },
+      return new Response(
+        JSON.stringify({ success: false, message: "Invalid exercises data" }),
         { status: 400 }
       );
     }
 
     const now = dayjs().tz(dayjs.tz.guess());
-    const workoutData = exercises.map((exercise: NewWorkout) => ({
-      userId,
-      date: now.toDate(),
-      exercise: exercise.exercise,
-      sets: exercise.sets,
-      reps: exercise.reps,
-      weight: exercise.weight,
-    }));
+    const startOfDay = now.startOf("day").toDate();
+    const endOfDay = now.endOf("day").toDate();
 
-    const result = await db.insert(workouts).values(workoutData).returning();
+    const existingWorkouts = await db
+      .select()
+      .from(workouts)
+      .where(
+        and(
+          eq(workouts.userId, userId),
+          gte(workouts.date, startOfDay),
+          lte(workouts.date, endOfDay)
+        )
+      );
 
-    return Response.json(
-      { success: true, data: result },
-      {
-        status: 201,
-      }
+    const existingExerciseIds = new Set(
+      existingWorkouts.map((workout) => workout.id)
     );
+
+    const newExercises = exercises.filter(
+      (exercise) => !existingExerciseIds.has(exercise.id)
+    );
+
+    if (newExercises.length > 0) {
+      const workoutData = newExercises.map((exercise: NewWorkout) => ({
+        userId,
+        date: now.toDate(),
+        exercise: exercise.exercise,
+        sets: exercise.sets,
+        reps: exercise.reps,
+        weight: exercise.weight,
+      }));
+
+      const result = await db.insert(workouts).values(workoutData).returning();
+      return new Response(JSON.stringify({ success: true, data: result }), {
+        status: 201,
+      });
+    } else {
+      return new Response(
+        JSON.stringify({ success: true, message: "No new exercises to add" }),
+        { status: 200 }
+      );
+    }
   } catch (error) {
     console.error("Error saving workout entries:", error);
-    return Response.json(
-      {
+    return new Response(
+      JSON.stringify({
         success: false,
         message: "Error saving workout entries",
-      },
+      }),
       { status: 500 }
     );
   }
