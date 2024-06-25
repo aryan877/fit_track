@@ -7,13 +7,13 @@ import { Loader2 } from "lucide-react";
 interface ExerciseCardProps {
   exercise: NewWorkout;
   onRemove: () => void;
-  isLoading: boolean;
+  isRemoving: boolean;
 }
 
 const ExerciseCard: React.FC<ExerciseCardProps> = ({
   exercise,
   onRemove,
-  isLoading,
+  isRemoving,
 }) => {
   return (
     <Card className="bg-gray-50">
@@ -28,9 +28,9 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
           variant="ghost"
           size="sm"
           onClick={onRemove}
-          disabled={isLoading}
+          disabled={isRemoving}
         >
-          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Remove"}
+          {isRemoving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Remove"}
         </Button>
       </CardContent>
     </Card>

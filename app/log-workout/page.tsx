@@ -39,9 +39,11 @@ const LogWorkout: React.FC = () => {
     weight: undefined,
   });
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [removingExerciseId, setRemovingExerciseId] = useState<number | null>(
+    null
+  );
   const [selectedBodyPart, setSelectedBodyPart] = useState<string>("");
 
   const { toast } = useToast();
@@ -97,13 +99,13 @@ const LogWorkout: React.FC = () => {
   };
 
   const removeExercise = async (exerciseToRemove: NewWorkout) => {
-    setIsLoading(true);
+    if (!exerciseToRemove.id) return;
+
+    setRemovingExerciseId(exerciseToRemove.id);
     try {
-      if (exerciseToRemove.id) {
-        await axios.delete("/api/workout", {
-          data: { id: exerciseToRemove.id },
-        });
-      }
+      await axios.delete("/api/workout", {
+        data: { id: exerciseToRemove.id },
+      });
       setExercises((prevExercises) =>
         prevExercises.filter((exercise) => exercise !== exerciseToRemove)
       );
@@ -119,7 +121,7 @@ const LogWorkout: React.FC = () => {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setRemovingExerciseId(null);
     }
   };
 
@@ -314,12 +316,12 @@ const LogWorkout: React.FC = () => {
                   </p>
                 ) : (
                   <div className="space-y-4">
-                    {exercises.map((exercise, index) => (
+                    {exercises.map((exercise) => (
                       <ExerciseCard
-                        key={index}
+                        key={exercise.id || exercise.exercise}
                         exercise={exercise}
                         onRemove={() => removeExercise(exercise)}
-                        isLoading={isLoading}
+                        isRemoving={removingExerciseId === exercise.id}
                       />
                     ))}
                   </div>
