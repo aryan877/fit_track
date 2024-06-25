@@ -326,7 +326,7 @@ const TrackRecord: React.FC = () => {
 
       {labels.length > 0 ? (
         <>
-          <div className="bg-card rounded-lg shadow-sm p-4 mb-8">
+          <div className="bg-card p-4 mb-8">
             <h2 className="text-xl font-semibold mb-4 text-center">
               Calories and Macronutrients Over Time
             </h2>
@@ -334,7 +334,7 @@ const TrackRecord: React.FC = () => {
               <Line data={calorieData} options={calorieChartOptions} />
             </div>
           </div>
-          <div className="bg-card rounded-lg shadow-sm p-4 mb-8">
+          <div className="bg-card p-4 mb-8">
             <h2 className="text-xl font-semibold mb-4 text-center">
               Workout Volume by Body Part
             </h2>
