@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2, Check, Coffee, Sun, Moon } from "lucide-react";
+import { Plus, Loader2, Check, Coffee, Sun, Moon, Edit } from "lucide-react";
 import { NewNutritionEntry, Goal } from "@/lib/schema";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -25,9 +25,9 @@ import {
 } from "@/components/ui/select";
 import axios from "axios";
 import MealItem from "@/components/MealItem";
-import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { MacroItem } from "@/components/MacroItem";
 import Back from "@/components/Back";
 
 const LogDiet: React.FC = () => {
@@ -37,6 +37,7 @@ const LogDiet: React.FC = () => {
     portion: undefined,
     mealType: "",
   });
+  const [editMealId, setEditMealId] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -47,7 +48,6 @@ const LogDiet: React.FC = () => {
   const [goal, setGoal] = useState<Goal | null>(null);
 
   const { toast } = useToast();
-  const router = useRouter();
 
   const fetchTodaysMeals = useCallback(async () => {
     try {
@@ -123,12 +123,49 @@ const LogDiet: React.FC = () => {
     }
   };
 
-  const addMeal = () => {
+  const addOrEditMeal = async () => {
     if (nutritionData) {
-      setMeals((prevMeals) => [...prevMeals, nutritionData]);
+      if (editMealId) {
+        try {
+          const response = await axios.patch("/api/nutrition", {
+            id: parseInt(editMealId),
+            ...nutritionData,
+          });
+
+          if (response.data.success) {
+            setMeals((prevMeals) =>
+              prevMeals.map((meal) =>
+                meal.id === parseInt(editMealId)
+                  ? { ...meal, ...nutritionData }
+                  : meal
+              )
+            );
+            toast({
+              title: "Success",
+              description: "Meal updated successfully!",
+            });
+          } else {
+            toast({
+              title: "Error",
+              description: "Failed to update meal. Please try again.",
+              variant: "destructive",
+            });
+          }
+        } catch (error) {
+          console.error("Error updating meal:", error);
+          toast({
+            title: "Error",
+            description: "An error occurred while updating meal.",
+            variant: "destructive",
+          });
+        }
+      } else {
+        setMeals((prevMeals) => [...prevMeals, nutritionData]);
+      }
       setNewMeal({ mealName: "", portion: undefined, mealType: "" });
       setNutritionData(null);
       setIsOpen(false);
+      setEditMealId(null);
     }
   };
 
@@ -152,6 +189,16 @@ const LogDiet: React.FC = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const editMealHandler = (meal: NewNutritionEntry) => {
+    setEditMealId(meal.id ? meal.id.toString() : null);
+    setNewMeal({
+      mealName: meal.mealName,
+      portion: meal.portion,
+      mealType: meal.mealType,
+    });
+    setIsOpen(true);
   };
 
   const handleSubmit = async () => {
@@ -241,14 +288,18 @@ const LogDiet: React.FC = () => {
                   <DialogTrigger asChild>
                     <Button variant="outline" className="w-full mb-6">
                       <Plus className="w-5 h-5 mr-2" />
-                      Add Meal
+                      {editMealId ? "Edit Meal" : "Add Meal"}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                      <DialogTitle>Add Meal</DialogTitle>
+                      <DialogTitle>
+                        {editMealId ? "Edit Meal" : "Add Meal"}
+                      </DialogTitle>
                       <DialogDescription>
-                        Enter the details of the meal you want to add.
+                        {editMealId
+                          ? "Edit the details of the meal."
+                          : "Enter the details of the meal you want to add."}
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
@@ -387,12 +438,12 @@ const LogDiet: React.FC = () => {
                     )}
                     <DialogFooter>
                       <Button
-                        onClick={addMeal}
+                        onClick={addOrEditMeal}
                         disabled={!nutritionData}
                         className="bg-green-500 text-white hover:bg-green-600"
                       >
                         <Check className="mr-2 h-4 w-4" />
-                        Add Meal
+                        {editMealId ? "Save Changes" : "Add Meal"}
                       </Button>
                     </DialogFooter>
                   </DialogContent>
@@ -417,6 +468,7 @@ const LogDiet: React.FC = () => {
                                   key={index}
                                   meal={meal}
                                   onRemove={() => removeMeal(meal)}
+                                  onEdit={() => editMealHandler(meal)}
                                 />
                               ))}
                           </div>
@@ -515,28 +567,5 @@ const LogDiet: React.FC = () => {
     </div>
   );
 };
-
-interface MacroItemProps {
-  label: string;
-  value: number;
-  percentage: number;
-  color: string;
-}
-
-const MacroItem: React.FC<MacroItemProps> = ({
-  label,
-  value,
-  percentage,
-  color,
-}) => (
-  <div>
-    <div className="flex justify-between items-center mb-1">
-      <span className="text-sm font-medium">{label}</span>
-      <span className="text-sm font-medium">{value.toFixed(1)}g</span>
-    </div>
-    <Progress value={percentage} className={`h-2 bg-${color}-100`} />
-    <div className="text-xs text-right mt-1">{percentage.toFixed(1)}%</div>
-  </div>
-);
 
 export default LogDiet;

@@ -1,16 +1,17 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { X, Utensils } from "lucide-react";
+import { X, Utensils, Edit } from "lucide-react";
 import { NewNutritionEntry } from "@/lib/schema";
 import { Progress } from "@/components/ui/progress";
 
 interface MealItemProps {
   meal: NewNutritionEntry;
   onRemove: () => void;
+  onEdit: () => void;
 }
 
-const MealItem: React.FC<MealItemProps> = ({ meal, onRemove }) => {
+const MealItem: React.FC<MealItemProps> = ({ meal, onRemove, onEdit }) => {
   const proteinGrams = parseFloat(meal.protein?.toString() || "0");
   const carbsGrams = parseFloat(meal.carbs?.toString() || "0");
   const fatGrams = parseFloat(meal.fat?.toString() || "0");
@@ -44,6 +45,14 @@ const MealItem: React.FC<MealItemProps> = ({ meal, onRemove }) => {
                 kcal
               </span>
             </p>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
+              onClick={onEdit}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"

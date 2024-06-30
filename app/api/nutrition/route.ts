@@ -276,3 +276,49 @@ export async function DELETE(request: Request) {
     );
   }
 }
+
+export async function PATCH(request: Request) {
+  const { userId } = auth();
+  if (!userId) {
+    return new Response(
+      JSON.stringify({ success: false, message: "Unauthorized" }),
+      { status: 401 }
+    );
+  }
+
+  const { id, mealName, portion, mealType, calories, protein, carbs, fat } =
+    await request.json();
+
+  if (!id || !mealName || !portion || !mealType) {
+    return new Response(
+      JSON.stringify({ success: false, message: "Invalid data" }),
+      { status: 400 }
+    );
+  }
+
+  try {
+    const result = await db
+      .update(nutritionEntries)
+      .set({
+        mealName,
+        portion,
+        mealType,
+        calories,
+        protein,
+        carbs,
+        fat,
+      })
+      .where(eq(nutritionEntries.id, id))
+      .returning();
+
+    return new Response(JSON.stringify({ success: true, data: result[0] }), {
+      status: 200,
+    });
+  } catch (error) {
+    console.error("Error updating meal:", error);
+    return new Response(
+      JSON.stringify({ success: false, message: "Error updating meal" }),
+      { status: 500 }
+    );
+  }
+}
