@@ -3,13 +3,7 @@ import { db } from "@/lib/db";
 import { workouts, nutritionEntries } from "@/lib/schema";
 import { eq, and, gte, lte } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
-import {
-  startOfMonth,
-  endOfMonth,
-  startOfYear,
-  endOfYear,
-  parseISO,
-} from "date-fns";
+import dayjs from "dayjs";
 
 export async function GET(request: NextRequest) {
   const { userId } = auth();
@@ -18,30 +12,18 @@ export async function GET(request: NextRequest) {
   }
 
   const searchParams = request.nextUrl.searchParams;
-  const timeframe = searchParams.get("timeframe");
   const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
 
   let startDateTime, endDateTime;
 
   if (startDate && endDate) {
-    startDateTime = parseISO(startDate);
-    endDateTime = parseISO(endDate);
+    startDateTime = dayjs(startDate).startOf("month").toDate();
+    endDateTime = dayjs(endDate).endOf("month").toDate();
   } else {
-    const now = new Date();
-    switch (timeframe) {
-      case "month":
-        startDateTime = startOfMonth(now);
-        endDateTime = endOfMonth(now);
-        break;
-      case "year":
-        startDateTime = startOfYear(now);
-        endDateTime = endOfYear(now);
-        break;
-      default:
-        startDateTime = startOfMonth(now);
-        endDateTime = endOfMonth(now);
-    }
+    const now = dayjs();
+    startDateTime = now.startOf("month").toDate();
+    endDateTime = now.endOf("month").toDate();
   }
 
   const nutritionData = await db
@@ -65,6 +47,8 @@ export async function GET(request: NextRequest) {
         lte(workouts.date, endDateTime)
       )
     );
+
+  console.log(nutritionData, workoutData);
 
   return NextResponse.json({ nutrition: nutritionData, workouts: workoutData });
 }
